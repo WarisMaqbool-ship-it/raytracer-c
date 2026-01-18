@@ -1,0 +1,50 @@
+- The eq for a sphere of radius r cenetered at the origin is: x^2 + y^2 + z^2 = r^2
+- As the general equation of a sphere is (x-h)^2 + (y-k)^2 + (z-l)^2 = r^2
+- Where (h,k,l) is center and r is radius
+- If the sphere is centered at (0,0,0), general eq = x^2 + y^2 + z^2 = r^2
+
+- If we want the sphere center to be at an arbitarary point (Cx, Cy, Cz), then the general eq becomes:
+                                 (Cx - x)^2 + (Cy - y)^2 + (Cz - z)^2 = r^2
+
+- You might note that a vector from point P = (x, y, z) to center C = (Cx, Cy, Cz) = (C - P).
+
+- If we use the definition of the dot product:
+                 
+                 (C-P).(C-P) = (Cx - x)^2 + (Cy - y)^2 + (Cz - z)^2 (Because dot product conveys that (A+B).(A+B) = A.A + A.B + B.A + B.B)
+
+- Lets expand point p as our actual ray point as: P(t)
+
+- This gives us: (C - P(t)).(C-P(t)) = r^2
+
+- We know that P(t) = Q + td   (definition of a ray), so let's expand it:
+               
+                 (C - (Q+td)).(C - (Q+td)) = r^2
+
+- We can also write it as under as we want to solve the t, so we will separate the terms based on whether there is a t or not:
+            
+                 (-td + (C-Q)).(-td + (C-Q)) = r^2
+
+- And now by following the rules of vector algebra we get:
+                 t^2.d - 2td.(C-Q)+(C-Q).(C-Q) = r^2
+
+- Moving the square of the radius to the left hand side we get:
+                 t^2.d - 2td.(C-Q)+(C-Q).(C-Q) - r^2 = 0
+
+- For sharp eyed individuals, it is clear that the eq we are getting is a quadratic eq.
+
+                               _____________________
+- So we can solve it by :t = / -b +- / b^2 - 4ac
+                              ----------------------
+                                       2a
+- For solving t in the ray sphere intersection equation gives us these values of a,b and c:
+                             
+                             a = d.d
+                             b = -2d.(C-Q)
+                             c = (C-Q).(C-Q)-r^2
+
+
+- The square root can be either positive, negative or zero.
+- Meaning that if square root is:
+- Positive: meaning two real solution(ray is passing in through a point and leaving through other)
+- Negative: ray never interferes with the sphere meaning no real solution
+- Zero: ray hits the edge of the sphere meaning only one real solution

@@ -1,0 +1,116 @@
+#include "color.h"
+#include "ray.h"
+#include "vec3.h"
+
+#include <stdio.h>
+#include <stdbool.h>
+
+bool hit_sphere(const point3* center, double radius, const ray* r) {
+
+        vec3 ray_org = ray_origin(r);
+        vec3 ray_dir = ray_direction(r);
+
+        vec3 oc = vec3_sub(center, &ray_org);
+
+        double a = vec3_dot(&ray_dir, &ray_dir);
+        double b = -2.0 * vec3_dot(&ray_dir, &oc);
+        double c = vec3_dot(&oc, &oc) - radius*radius;
+
+        double discriminant = b*b - 4*a*c;
+        return (discriminant >= 0);
+    }
+
+color ray_color(const ray* r) {
+    point3 center = (point3){.e = {0,0,-1}};
+    if(hit_sphere(&center, 0.5, r)) {
+        return (color){.e = {1,0,0}};
+    }
+    vec3 ray_dir = ray_direction(r);
+
+    vec3 unit_direction = vec3_unit_vector(&ray_dir);
+    double a = 0.5*(getY(&unit_direction) + 1.0);
+    vec3 opA = vec3_scale(1.0-a, &(color){.e = {1.0, 1.0, 1.0}});
+    vec3 opB = vec3_scale(a, &(color){.e = {0.5, 0.7, 1.0}});
+
+    return vec3_add(&opA, &opB);
+}
+int main(void) {
+    //image
+    double aspect_ratio = 16.0/9.0;
+
+    int image_width = 400;
+    double double_img_wdth = (double)image_width;
+    int image_height = (int)(image_width / aspect_ratio);
+    if(image_height < 1) {
+        image_height = 1;
+    }
+    double double_img_hgt = (double)image_height;
+
+    //camera
+    double focal_length = 1.0;
+    double viewport_height = 2.0;
+    double viewport_width = viewport_height * ((double)(image_width)/image_height);
+    point3 camera_center = vec3_zero();
+
+    //calculate the vectors across the horizontal and down the vertical viewport edges.
+    vec3 viewport_u = vec3_three(viewport_width, 0.0, 0.0);
+    vec3 viewport_u_copy = viewport_u;
+    vec3 viewport_v = vec3_three(0.0, -viewport_height, 0.0);
+    vec3 viewport_v_copy = viewport_v;
+
+    //calculate the horizontal and verticval delta vectors from pixel to pixel.
+
+    vec3 pixel_delta_u = vec3_scale(1.0/ image_width, &viewport_u);
+    vec3 pixel_delta_v = vec3_scale(1.0/ image_height, &viewport_v);
+    
+    // Calculate the location of the upper left pixel.
+
+    vec3 viewport_upper_left =
+    vec3_sub(
+        &camera_center,
+        &(vec3){0.0, 0.0, focal_length}
+    );
+
+    vec3 half_u = vec3_scale(0.5, &viewport_u);
+    vec3 half_v = vec3_scale(0.5, &viewport_v);
+    vec3 add_delta_uv = vec3_add(&pixel_delta_u, &pixel_delta_v);
+
+    viewport_upper_left =
+    vec3_sub(&viewport_upper_left, &half_u);
+
+    viewport_upper_left =
+    vec3_sub(&viewport_upper_left, &half_v);
+
+    vec3 half_pixel =
+    vec3_scale(0.5, &add_delta_uv);
+
+    vec3 pixel00_loc =
+    vec3_add(&viewport_upper_left, &half_pixel);
+
+
+    //image headers
+    printf("P3\n");
+    printf("%d ", image_width);
+    printf("%d", image_height);
+    printf("\n255\n");
+
+    //main image
+    for(int i = 0; i < image_height; i++) {
+        fprintf(stderr, "\rScan lines remaining: %d", (image_height-i));
+        for(int j = 0; j < image_width; j++) {
+            // vec3 pixel_color = vec3_three((double)j/(image_width-1), (double)i/(image_height-1), 0);
+            vec3 j_mul_pxlu = vec3_scale(j, &pixel_delta_u);
+            vec3 i_mul_pxlv = vec3_scale(i, &pixel_delta_v);
+
+            vec3 pixel_00loc_add_pxlu = vec3_add(&pixel00_loc, &j_mul_pxlu);
+            
+            vec3 pixel_center = vec3_add(&pixel_00loc_add_pxlu, &i_mul_pxlv);
+            vec3 ray_direction = vec3_sub(&pixel_center, &camera_center);
+            ray r = ray_create(camera_center, ray_direction);
+
+            color pixel_color = ray_color(&r);
+            write_color(stdout, &pixel_color);
+        }
+    }
+    fprintf(stderr, "\rDone.              \n");
+}
