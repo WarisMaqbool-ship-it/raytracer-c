@@ -1,0 +1,24 @@
+- Imagine a sphere and a tiny arrow sticking straight out(perpendicular) with respect to the point of intersection with the surface.
+
+- The specified arrow is the surface normal in leyman terms.
+
+- Why are surface normals important when it comes to shading?
+- Surface normals tell us about which way the surface is facing.
+
+- Should normals have random length or length = 1(unit length)?
+- We choose unit length always, because we want to find the surface normal once and not everywhere.
+
+- Finding the surface normal on a sphere is quite easy:
+- we define it by:
+-                  normal = (hit-point - center)
+                           ----------------------
+                                    radius
+
+- Where center is the sphere center, hit-point is the ray hit-point and radius is the sphere radius.
+
+- The normal vetor points directly outward from the sphere.
+- normal = hit_point - center.
+- To make it unit length, we do: 
+-                  normal = (hit-point - center)
+                           ----------------------
+                                    radius
